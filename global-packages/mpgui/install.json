@@ -1,0 +1,15 @@
+{
+	"install": {
+		"dependencies": "python",
+		"install-script": "",
+		"command": "false",
+		"app": "true"
+	},
+	"info": {
+		"name": "MinPin",
+		"description": "GUI for MinPin package manager"
+	},
+	"app": {
+		".desktop": "mpgui.desktop"
+	}
+}
