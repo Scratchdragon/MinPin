@@ -42,6 +42,21 @@ int len(string str)
     }  
     return length;     
 }  
+int len(string strs[])  
+{  
+    int length = 0; 
+		bool end = false; 
+    while(!end){
+				try {
+					strs[length];
+				}
+				catch(const exception& e) {
+					end = true;
+				}
+        length++;  
+    }  
+    return length;     
+}  
   
 //Mirrors the python function "split"
 string * split (string str, char seperator)  
@@ -559,6 +574,10 @@ int main(int argc, char **argv) {
 	}
 	else if(strcmp(argv[1],"-i") == 0 || strcmp(argv[1],"install") == 0) {
 		if(argc > 2) {
+			print(split(argv[2],'.')[len(split(argv[2],'.')) - 1].c_str());
+			if(strcmp(split(argv[2],'.')[-1].c_str(),"minpin") != 0) {
+				print("Grab from github");
+			}
 			if(install(argv[2])) {
 				print("Installed package\n");
 			}

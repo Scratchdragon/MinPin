@@ -1,0 +1,19 @@
+{
+	"install": {
+		"dependencies": "",
+		"install-script": "echo Installing example package for the MinPin package manager.",
+		"command": "true",
+		"app": "false"
+	},
+	"info": {
+		"name": "example name",
+		"description": "Example package for dlpkg ${version}"
+	},
+	"command": {
+		"name": "example",
+		"execute": "example-program.sh"
+	},
+	"app": {
+		".desktop": "example.desktop"
+	}
+}
