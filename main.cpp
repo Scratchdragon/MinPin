@@ -6,6 +6,8 @@
 #include <fstream>
 #include <stdlib.h>
 
+#define MINPIN_V "1.2.0"
+
 using namespace std;
 
 string repo = "https://raw.githubusercontent.com/Scratchdragon/MinPin-Repo/main/";
@@ -82,7 +84,7 @@ int main(int argc, char ** argv) {
 		return 0;
 	}
 	int max = 4;
-	string command_index[] = {"","package","decompress","install"};
+	string command_index[] = {"","package","decompress","install","version"};
 	
 	//Get index of command
 	bool gotindex = false;
@@ -144,6 +146,9 @@ int main(int argc, char ** argv) {
 			exec = exec + split( argv[2], '.' )[0] + "; ./install.sh";
 			system(exec);
 			system("rm -r " + split( argv[2], '.' )[0]);
+			break;
+		case 4:
+			std::cout << "MinPin " << MINPIN_V << " (Miniature Package Installer)"
 			break;
 		default:
 			std::cout << "E: Operation not implemented.\n";
