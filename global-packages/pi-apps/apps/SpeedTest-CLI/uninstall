@@ -1,0 +1,4 @@
+#!/bin/bash
+rm -f ~/.local/share/applications/speedtest.desktop || error "failed to remove menu shortcut!"
+rm -rf ~/speedtest
+sudo rm -f /usr/local/bin/speedtest

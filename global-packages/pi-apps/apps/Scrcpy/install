@@ -1,0 +1,24 @@
+#!/bin/bash
+echo -e "==============\n"
+echo " · More info: run "scrcpy --help" or visit https://github.com/Genymobile/scrcpy"
+echo " · The Android device requires at least API 21 (Android 5.0)."
+echo " · Make sure you enabled adb debugging on your device(s)."
+echo " · On some devices, you also need to enable an additional option to control it using keyboard and mouse."
+echo " · If you have issues, try to run the app a couple of times through Terminal."
+sudo rm -rf ~/scrcpy /usr/local/share/scrcpy ~/.local/share/applications/scrcpy.desktop 2>/dev/null
+
+install_packages adb ffmpeg libsdl2-2.0-0 gcc git pkg-config meson ninja-build libsdl2-dev libavcodec-dev libavdevice-dev libavformat-dev libavutil-dev libusb-1.0-0 libusb-1.0-0-dev || exit 1
+
+git clone https://github.com/Genymobile/scrcpy || error "Failed to clone."
+cd scrcpy
+./install_release.sh || error "Failed to install."
+
+sudo mkdir -p /usr/local/share/scrcpy
+sudo cp -af $HOME/scrcpy/scrcpy-server /usr/local/share/scrcpy/scrcpy-server
+echo "[Desktop Entry]
+Name=Scrcpy
+Exec=scrcpy
+Icon=$(dirname "$0")/icon-64.png
+Type=Application
+Comment=Display and control of Android devices connected on USB
+Categories=ConsoleOnly;Utility;System;" > ~/.local/share/applications/scrcpy.desktop

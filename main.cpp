@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <iostream>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <string.h>
+#include <fstream>
 #include <stdlib.h>
 
 using namespace std;
+
+string repo = "https://raw.githubusercontent.com/Scratchdragon/MinPin-Repo/main/";
 
 string strings[8]; //Max strings returned by split  
   
@@ -55,11 +60,20 @@ string * split (string str, char seperator)
 		return strings;
 }
 
+void system(string command) {
+	system(command.c_str());
+}
+
 void zip(string filename) {
 	system(("zip -r " + filename + ".minpin " + filename).c_str());
 }
-void unzip(string filename) {
-	system(("unzip " + filename).c_str());
+void unzip(string filename, string elseC = "") {
+	system(("unzip " + filename + " || " + elseC).c_str());
+}
+
+inline bool file_exists(string name) {
+  struct stat buffer;   
+  return (stat (name.c_str(), &buffer) == 0); 
 }
 
 int main(int argc, char ** argv) {
@@ -87,9 +101,11 @@ int main(int argc, char ** argv) {
 	}
 	if(argc <= 2) {
 		std::cout << "Not enough arguments.\n";
+		return -1;
 	}
 
 	string exec = "chmod +x ";
+	string package = argv[2]; package = package + ".minpin";
 	switch(i) {
 		case 1:
 			zip(argv[2]);
@@ -100,14 +116,34 @@ int main(int argc, char ** argv) {
 		case 3:
 			if(strcmp(split(argv[2],'.')[1].c_str(),"minpin") != 0) {
 				//Get package from repositories
+				system("curl -o " + package + " " + repo + package);
+
+				//Verify file installed
+				if (!file_exists(package)) {
+					std::cout << "Package not found, make sure you have read/write permissions in this directory.\n";
+					return 0;
+				}
+				
+				unzip(package,"echo '\n\nPackage not found, either malformed zipfile or package does not exist'");
+				system("rm " + package);
+				if(!file_exists(split(package,'.')[0])){
+					return 0;
+				}
+			}
+			else {
+				if (!file_exists(package)) {
+					std::cout << "Package not found, either failed to access repository or package does not exist.\n";
+					return 0;
+				}
+				unzip(argv[2]);
 			}
 			
-			unzip(argv[2]);
 			exec = exec + split( argv[2], '.' )[0] + "/install.sh";
 			system(exec.c_str());
-			exec = "./";
-			exec = exec + split( argv[2], '.' )[0] + "/install.sh";
-			system(exec.c_str());
+			exec = "cd ";
+			exec = exec + split( argv[2], '.' )[0] + "; ./install.sh";
+			system(exec);
+			system("rm -r " + split( argv[2], '.' )[0]);
 			break;
 		default:
 			std::cout << "E: Operation not implemented.\n";
