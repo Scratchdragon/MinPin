@@ -1,2 +1,0 @@
-#!/bin/bash
-rm -f $HOME/hfs.exe ~/.local/share/applications/hfs.desktop

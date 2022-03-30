@@ -1,5 +1,0 @@
-#!/bin/bash
-rm -rf ~/jgrasp.zip ~/jgrasp
-
-
-purge_packages || exit 1

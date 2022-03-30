@@ -1,4 +1,0 @@
-#!/bin/bash
-pisafe uninstall -y
-
-exit 0

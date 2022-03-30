@@ -1,3 +1,0 @@
-#!/bin/bash
-
-install_packages "https://apt.raspbian-addons.org/debian/pool/main/s/snapdrop/snapdrop_20220226_arm64.deb"

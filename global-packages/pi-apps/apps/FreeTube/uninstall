@@ -1,3 +1,0 @@
-#!/bin/bash
-#Uninstalling FreeTube
-purge_packages || exit 1

@@ -1,3 +1,0 @@
-#!/bin/bash
-tldr --clear-cache &>/dev/null
-rm -f /usr/bin/tldr || sudo rm -f /usr/bin/tldr &>/dev/null

@@ -1,4 +1,0 @@
-Raspberry Pi's official SD card imaging utility.
-This includes many features and customizations you can make to the image before flashing, and is overall very reliable.
-To run: Menu -> Accessories -> Imager
-To run in terminal: rpi-imager

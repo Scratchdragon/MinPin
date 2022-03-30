@@ -1,2 +1,0 @@
-chmod +x install
-./install
