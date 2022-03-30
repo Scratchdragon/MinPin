@@ -5,12 +5,13 @@
 #include <string.h>
 #include <fstream>
 #include <stdlib.h>
+#include <cstdlib>
 
 #define MINPIN_V "1.2.0"
 
 using namespace std;
 
-string repo = "https://raw.githubusercontent.com/Scratchdragon/MinPin-Repo/main/";
+string repo;
 
 string strings[8]; //Max strings returned by split  
   
@@ -78,12 +79,100 @@ inline bool file_exists(string name) {
   return (stat (name.c_str(), &buffer) == 0); 
 }
 
+int install_deps(string package);
+
+int install(string pkg) {
+		const char * argv[] = {"","",pkg.c_str()};
+		string package = pkg + ".minpin";
+		string exec = "chmod +x ";
+		if(strcmp(split(argv[2],'.')[1].c_str(),"minpin") != 0) {
+				//Get package from repositories
+				system("curl -o " + package + " " + repo + package);
+
+				//Verify file installed
+				if (!file_exists(package)) {
+					std::cout << "Package not found, make sure you have read/write permissions in this directory.\n";
+					return 1;
+				}
+				
+				unzip(package,"echo '\n\nPackage not found, either malformed zipfile or package does not exist'");
+				system("rm " + package);
+				if(!file_exists(split(package,'.')[0])){
+					return 1;
+				}
+			}
+			else {
+				if (!file_exists(package)) {
+					std::cout << "Package not found.\n";
+					return 1;
+				}
+				unzip(argv[2]);
+			}
+
+			if(install_deps(pkg)==1) {
+				return 1;
+			}
+					
+			exec = exec + split( argv[2], '.' )[0] + "/install.sh";
+			system(exec.c_str());
+			exec = "cd ";
+			exec = exec + split( argv[2], '.' )[0] + "; ./install.sh";
+			system(exec);
+			system("rm -r " + split( argv[2], '.' )[0]);
+		return 0;
+}
+
+int install_deps(string package) {
+	string line;
+  ifstream myfile(package + "/.minpin/dependencies");
+  if (myfile.is_open()) {
+    while (getline(myfile,line)) {
+      if(install(line)==1) {
+				std::cout << "Failed to install dependency '" << line << "'\n";
+				system("rm -r " + package);
+				return 1;
+			}
+    }
+    myfile.close();
+  }
+  else cout << "No dependencies required by package.\n"; 
+	return 0;
+}
+
+const char * get_minpin() {
+	const char * var = getenv("MINPIN");
+	if(var == NULL) {
+		std::cout << "W: Environment variable 'MINPIN' is null, defaulting to /etc/minpin/\n";
+		var = "/etc/minpin";
+	}
+	return var;
+}
+
+int init_repo() {
+	std::cout << "Getting primary repository...\n";
+	string minpin_dir = get_minpin();
+	
+	if(!file_exists(minpin_dir + "/repo")) {
+		std::cout << "E: repo file not found, cannot access repository.\n";
+		return -1;
+	}
+	
+	string line;
+  ifstream myfile((minpin_dir + "/repo"));
+  if (myfile.is_open()) {
+    while (getline(myfile,line)) {
+			repo = line;
+		}
+	}
+	return 0;
+}
+
 int main(int argc, char ** argv) {
 	if(argc <= 1) {
 		std::cout << "	MinPin 1.2 (Miniature Package Installer)\n";
 		return 0;
 	}
-	int max = 4;
+	int max = 5;
 	string command_index[] = {"","package","decompress","install","version"};
 	
 	//Get index of command
@@ -101,13 +190,11 @@ int main(int argc, char ** argv) {
 							<< "' not found.\n";
 		return -1;
 	}
-	if(argc <= 2) {
+	if(argc <= 2 && i != 4) {
 		std::cout << "Not enough arguments.\n";
 		return -1;
 	}
-
-	string exec = "chmod +x ";
-	string package = argv[2]; package = package + ".minpin";
+	
 	switch(i) {
 		case 1:
 			zip(argv[2]);
@@ -116,39 +203,15 @@ int main(int argc, char ** argv) {
 			unzip(argv[2]);
 			break;
 		case 3:
-			if(strcmp(split(argv[2],'.')[1].c_str(),"minpin") != 0) {
-				//Get package from repositories
-				system("curl -o " + package + " " + repo + package);
-
-				//Verify file installed
-				if (!file_exists(package)) {
-					std::cout << "Package not found, make sure you have read/write permissions in this directory.\n";
-					return 0;
-				}
-				
-				unzip(package,"echo '\n\nPackage not found, either malformed zipfile or package does not exist'");
-				system("rm " + package);
-				if(!file_exists(split(package,'.')[0])){
-					return 0;
-				}
+			if(init_repo() != 0) {
+				return -1;
 			}
-			else {
-				if (!file_exists(package)) {
-					std::cout << "Package not found, either failed to access repository or package does not exist.\n";
-					return 0;
-				}
-				unzip(argv[2]);
+			if(install(argv[2]) == 1) {
+				return 0;
 			}
-			
-			exec = exec + split( argv[2], '.' )[0] + "/install.sh";
-			system(exec.c_str());
-			exec = "cd ";
-			exec = exec + split( argv[2], '.' )[0] + "; ./install.sh";
-			system(exec);
-			system("rm -r " + split( argv[2], '.' )[0]);
 			break;
 		case 4:
-			std::cout << "MinPin " << MINPIN_V << " (Miniature Package Installer)"
+			std::cout << "MinPin " << MINPIN_V << " (Miniature Package Installer)\n";
 			break;
 		default:
 			std::cout << "E: Operation not implemented.\n";
